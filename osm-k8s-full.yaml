@@ -115,17 +115,17 @@ spec:
         - containerPort: 80
         - containerPort: 5432
         resources: {}
-        volumeMounts:
-        - mountPath: /var/lib/postgresql/10/main
-          name: kubernetes-osm-db
-        - mountPath: /var/lib/mod-tile
-          name: kubernetes-osm-tiles
+#        volumeMounts:
+#        - mountPath: /var/lib/postgresql/10/main
+#          name: kubernetes-osm-db
+#        - mountPath: /var/lib/mod-tile
+#          name: kubernetes-osm-tiles
       restartPolicy: Always
-      volumes:
-      - name: kubernetes-osm-db
-        persistentVolumeClaim:
-          claimName: osm-db-pv-claim
-      - name: kubernetes-osm-tiles
-        persistentVolumeClaim:
-          claimName: osm-tile-pv-claim
+#      volumes:
+#      - name: kubernetes-osm-db
+#        persistentVolumeClaim:
+#          claimName: osm-db-pv-claim
+#      - name: kubernetes-osm-tiles
+#        persistentVolumeClaim:
+#          claimName: osm-tile-pv-claim
 status: {}
