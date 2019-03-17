@@ -1,0 +1,131 @@
+# Previous steps
+# $minikube ssh
+# $mkdir -p  /mnt/osm/
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: osm-db-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 200Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/osm/db"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: osm-tile-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/osm/tile"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: kubernetes-osm-tiles
+  name: osm-db-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+--- 
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: kubernetes-osm-tiles
+  name: osm-tile-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml
+    kompose.version: 1.18.0 (06a2e56)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: osm
+  name: osm
+spec:
+  ports:
+  - name: "80"
+    port: 80
+    targetPort: 80
+  - name: "5432"
+    port: 5432
+    targetPort: 5432
+  selector:
+    io.kompose.service: osm
+status:
+  loadBalancer: {}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml
+    kompose.version: 1.18.0 (06a2e56)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: osm
+  name: osm
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: osm
+    spec:
+      containers:
+      - env:
+        - name: THREADS
+          value: "4"
+        image: scaamanho/osm-tile-server:v1
+        name: osm
+        ports:
+        - containerPort: 80
+        - containerPort: 5432
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/10/main
+          name: kubernetes-osm-db
+        - mountPath: /var/lib/mod-tile
+          name: kubernetes-osm-tiles
+      restartPolicy: Always
+      volumes:
+      - name: kubernetes-osm-db
+        persistentVolumeClaim:
+          claimName: osm-db-pv-claim
+      - name: kubernetes-osm-tiles
+        persistentVolumeClaim:
+          claimName: osm-tile-pv-claim
+status: {}
