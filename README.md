@@ -42,6 +42,13 @@ The import and tile serving processes use 4 threads by default, but this number 
 
 ## Kubernetes
 
+### Minukube
+<https://github.com/kubernetes/minikube>
+
+```
+minikube config set memory 8192
+```
+or `minikube start --memory 8192`
 ### Install kompose
 
 ```
@@ -57,8 +64,6 @@ sudo mv ./kompose /usr/local/bin/kompose
  ```
 
 ### Install on Minukube
-
-Using kompose to trans
 
 ```
 $kompose up
