@@ -1,0 +1,18 @@
+version: '2'
+services:
+  osm:
+    image: scaamanho/osm-tile-server:v1
+ #   volumes:
+ #     - osm-db:/var/lib/postgresql/10/main
+ #     - osm-tiles:/var/lib/mod_tile
+    ports:
+      - 80:80
+      - 5432:5432
+    environment:
+      - THREADS=4
+
+#volumes:
+#  osm-db:
+#    driver: local
+#  osm-tiles:
+#    driver: local

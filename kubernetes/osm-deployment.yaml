@@ -1,0 +1,44 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml
+    kompose.version: 1.18.0 (06a2e56)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: osm
+  name: osm
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: osm
+    spec:
+      containers:
+      - env:
+        - name: THREADS
+          value: "4"
+        image: scaamanho/osm-tile-server:v1
+        name: osm
+        ports:
+        - containerPort: 80
+        - containerPort: 5432
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/10/main
+          name: kubernetes-osm-db
+        - mountPath: /var/lib/mod-tile
+          name: kubernetes-osm-tiles
+      restartPolicy: Always
+      volumes:
+      - name: kubernetes-osm-db
+        persistentVolumeClaim:
+          claimName: kubernetes-osm-db
+      - name: kubernetes-osm-tiles
+        persistentVolumeClaim:
+          claimName: kubernetes-osm-tiles
+status: {}

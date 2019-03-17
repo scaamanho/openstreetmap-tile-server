@@ -40,6 +40,48 @@ The import and tile serving processes use 4 threads by default, but this number 
 
     docker run -p 80:80 -e THREADS=24 -v osm-data:/var/lib/postgresql/10/main -d scaamanho/osm-tile-server run
 
+## Kubernetes
+
+### Install kompose
+
+```
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-linux-amd64 -o kompose
+chmod +x kompose
+sudo mv ./kompose /usr/local/bin/kompose
+```
+
+### Creating kubernetes files
+
+ ```
+ kompose create -f docker-compose.yml
+ ```
+
+### Install on Minukube
+
+Using kompose to trans
+
+```
+$kompose up
+.... wait about 30 mins to pods download andbe ready
+.... check pod status with kubectl describe pod osm and look or eventes
+
+$kubectl get svc
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)           AGE
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP           37h
+osm          ClusterIP   10.110.109.182   <none>        80/TCP,5432/TCP   52m
+
+$minikube tunnel & > /dev/null 2>&1
+
+$curl 10.110.109.182
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Custom Tile Server</title>
+        ...
+```
+or u can browse to http://
+
+
 ## License
 
 ```
