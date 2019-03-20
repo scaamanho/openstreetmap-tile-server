@@ -9,13 +9,12 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: manual
   capacity:
     storage: 200Mi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/mnt/osm/db"
+    path: "/data/osm/db"
 ---
 kind: PersistentVolume
 apiVersion: v1
@@ -24,13 +23,12 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: manual
   capacity:
     storage: 100Mi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/mnt/osm/tile"
+    path: "/data/osm/tile"
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
