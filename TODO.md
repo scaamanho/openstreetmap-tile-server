@@ -27,3 +27,4 @@ https://hub.docker.com/_/openmaptiles-openstreetmap-maps?tab=description
   * Juntar apt
   * usar `sudo apt-get autoclean`
   * unificar run commands
+[x] Path on static files para que apunten a ingress path files

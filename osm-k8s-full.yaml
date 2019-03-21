@@ -109,6 +109,7 @@ spec:
         backend:
           serviceName: osm
           servicePort: 80
+      # redirect tiles
       - path: /tile/*
         backend:
             serviceName: osm
