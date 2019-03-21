@@ -14,7 +14,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/data/osm/db"
+    path: "/data/pv0002/db"
 ---
 kind: PersistentVolume
 apiVersion: v1
@@ -28,7 +28,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/data/osm/tile"
+    path: "/data/pv0002/tile"
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -82,6 +82,37 @@ spec:
     io.kompose.service: osm
 status:
   loadBalancer: {}
+---
+# Enable http://<ip-minikube>/[path] on k8s
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: osm-ingress
+  annotations:
+    # redirect http request to https
+    nginx.ingress.kubernetes.io/ssl-redirect: \"true\"
+    # redirect path to target deployment path
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      # path that redirect k8s proxy to service deployment
+      - path: /osm/*
+        backend:
+          # reference to service name defined in Service definition
+          serviceName: osm
+          # port od k8s ip where ingress will listen
+          servicePort: 80
+      # neeeded for static files
+      - path: /*
+        backend:
+          serviceName: osm
+          servicePort: 80
+      - path: /tile/*
+        backend:
+            serviceName: osm
+            servicePort: 80
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment

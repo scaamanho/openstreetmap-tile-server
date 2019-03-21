@@ -84,7 +84,7 @@ $curl 10.110.109.182
         <title>Custom Tile Server</title>
         ...
 ```
-or u can browse to http://
+or u can browse to http://10.110.109.182
 
 
 ## License
