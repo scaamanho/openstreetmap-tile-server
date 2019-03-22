@@ -49,6 +49,15 @@ The import and tile serving processes use 4 threads by default, but this number 
 minikube config set memory 8192
 ```
 or `minikube start --memory 8192`
+
+**NOTE**: Is needed set permisions in mount directories due they are not writen by root user
+
+minikube ssh
+sudo mkdir -p /data/osm-db
+sudo mkdir -p /data/osm-tile
+sudo chmod 777 /dat /osm*
+
+
 ### Install kompose
 
 ```
@@ -86,6 +95,135 @@ $curl 10.110.109.182
 ```
 or u can browse to http://10.110.109.182
 
+
+
+
+## Push images to Kubernetes registry
+
+<https://blog.hasura.io/sharing-a-local-registry-for-minikube-37c7240d0615/>
+
+1. Create a docker registry in k8s  
+```
+kubectl create -f https://gist.github.com/coco98/b750b3debc6d517308596c248daf3bb1
+```
+
+`kube-registry.yaml`
+```yaml
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kube-registry-v0
+  namespace: kube-system
+  labels:
+    k8s-app: kube-registry
+    version: v0
+spec:
+  replicas: 1
+  selector:
+    k8s-app: kube-registry
+    version: v0
+  template:
+    metadata:
+      labels:
+        k8s-app: kube-registry
+        version: v0
+    spec:
+      containers:
+      - name: registry
+        image: registry:2.5.1
+        resources:
+          # keep request = limit to keep this container in guaranteed class
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+        - name: REGISTRY_HTTP_ADDR
+          value: :5000
+        - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
+          value: /var/lib/registry
+        volumeMounts:
+        - name: image-store
+          mountPath: /var/lib/registry
+        ports:
+        - containerPort: 5000
+          name: registry
+          protocol: TCP
+      volumes:
+      - name: image-store
+        hostPath:
+          path: /data/registry/
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-registry
+  namespace: kube-system
+  labels:
+    k8s-app: kube-registry
+spec:
+  selector:
+    k8s-app: kube-registry
+  ports:
+  - name: registry
+    port: 5000
+    protocol: TCP
+
+---
+
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: kube-registry-proxy
+  namespace: kube-system
+  labels:
+    k8s-app: kube-registry
+    kubernetes.io/cluster-service: "true"
+    version: v0.4
+spec:
+  template:
+    metadata:
+      labels:
+        k8s-app: kube-registry
+        version: v0.4
+    spec:
+      containers:
+      - name: kube-registry-proxy
+        image: gcr.io/google_containers/kube-registry-proxy:0.4
+        resources:
+          limits:
+            cpu: 100m
+            memory: 50Mi
+        env:
+        - name: REGISTRY_HOST
+          value: kube-registry.kube-system.svc.cluster.local
+        - name: REGISTRY_PORT
+          value: "5000"
+        ports:
+        - name: registry
+          containerPort: 80
+          hostPort: 5000
+```
+
+
+Set your docker enviroment to local machine
+```shell
+$ minikube docker-env
+export DOCKER_TLS_VERIFY="1"
+export DOCKER_HOST="tcp://192.168.39.36:2376"
+export DOCKER_CERT_PATH="/home/scaamano/.minikube/certs"
+export DOCKER_API_VERSION="1.35"
+# Run this command to configure your shell:
+# eval $(minikube docker-env)
+$ eval $(minikube docker-env)
+```
+
+2. Point your `docker` client at minikube's docker daemon by running `eval $(minikube docker-env)`.
+3. Build and push an image.
 
 ## License
 

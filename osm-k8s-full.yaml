@@ -1,7 +1,3 @@
-# Previous steps
-# $minikube ssh
-# $mkdir -p  /mnt/osm/
-
 kind: PersistentVolume
 apiVersion: v1
 metadata:
@@ -9,12 +5,13 @@ metadata:
   labels:
     type: local
 spec:
+  storageClassName: osm-db-store
   capacity:
     storage: 200Mi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/data/pv0002/db"
+    path: "/data/osm-db"
 ---
 kind: PersistentVolume
 apiVersion: v1
@@ -23,22 +20,21 @@ metadata:
   labels:
     type: local
 spec:
+  storageClassName: osm-tile-store
   capacity:
     storage: 100Mi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/data/pv0002/tile"
+    path: "/data/osm-tile"
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   creationTimestamp: null
-  labels:
-    io.kompose.service: kubernetes-osm-tiles
   name: osm-db-pv-claim
 spec:
-  storageClassName: manual
+  storageClassName: osm-db-store
   accessModes:
     - ReadWriteOnce
   resources:
@@ -53,7 +49,7 @@ metadata:
     io.kompose.service: kubernetes-osm-tiles
   name: osm-tile-pv-claim
 spec:
-  storageClassName: manual
+  storageClassName: osm-tile-store
   accessModes:
     - ReadWriteOnce
   resources:
@@ -145,17 +141,17 @@ spec:
         - containerPort: 80
         - containerPort: 5432
         resources: {}
-#        volumeMounts:
+        volumeMounts: 
 #        - mountPath: /var/lib/postgresql/10/main
 #          name: kubernetes-osm-db
-#        - mountPath: /var/lib/mod-tile
-#          name: kubernetes-osm-tiles
+        - mountPath: /var/lib/mod_tile/
+          name: kubernetes-osm-tiles
       restartPolicy: Always
-#      volumes:
+      volumes:
 #      - name: kubernetes-osm-db
 #        persistentVolumeClaim:
 #          claimName: osm-db-pv-claim
-#      - name: kubernetes-osm-tiles
-#        persistentVolumeClaim:
-#          claimName: osm-tile-pv-claim
+      - name: kubernetes-osm-tiles
+        persistentVolumeClaim:
+          claimName: osm-tile-pv-claim
 status: {}
