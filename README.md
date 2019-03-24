@@ -14,6 +14,7 @@ It is based on the [latest Ubuntu 18.04 LTS guide](https://switch2osm.org/manual
 * [ ] Import `osm` and `osm.pbf` files throught volumes
 * [ ] Custom styles rendering map
 * [ ] Use remote database (far away...)
+* [ ] Remove tash (backup files and directories)
 
 ## Deploy on Docker
 
