@@ -4,6 +4,8 @@ This proyect is aimed to create a empty OpenStreetMap PNG tile server for render
 
 It is based on the [latest Ubuntu 18.04 LTS guide](https://switch2osm.org/manually-building-a-tile-server-18-04-lts/) from [switch2osm.org](https://switch2osm.org/) and [openstreetmap-tile-server](https://github.com/Overv/openstreetmap-tile-server)
 
+**This server is ready to be deployed in docker or kubernetes**
+
 ## Roadmap
 
 * [x] Standalone Docker image
@@ -11,7 +13,7 @@ It is based on the [latest Ubuntu 18.04 LTS guide](https://switch2osm.org/manual
 * [x] Simple default frontend
 * [x] Peristent Volumes in Docker
 * [ ] Persistent Volumes in Kubernetes
-* [ ] Import `osm` and `osm.pbf` files throught volumes
+* [ ] Import custom `osm` and `osm.pbf` files throught volumes
 * [ ] Custom styles rendering map
 * [ ] Use remote database (far away...)
 * [ ] Remove tash (backup files and directories)
