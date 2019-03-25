@@ -23,7 +23,7 @@ It is based on the [latest Ubuntu 18.04 LTS guide](https://switch2osm.org/manual
 ### Build Docker image
 
 ```shell 
-$ docker build -t osm-tile-server .
+$docker build -t osm-tile-server .
 ```
 
 ### Create Volumes and run container
@@ -31,46 +31,46 @@ $ docker build -t osm-tile-server .
 Tiles that have already been rendered will be stored in `/var/lib/mod_tile`. To make sure that this data survives container restarts, you should create another volume for it
 
 ```shell
-$ docker volume create osm-data
-$ docker volume create osm-rendered-tiles
-$ docker run -p 80:80 -v osm-data:/var/lib/postgresql/10/main \
+$docker volume create osm-data
+$docker volume create osm-rendered-tiles
+$docker run -p 80:80 -v osm-data:/var/lib/postgresql/10/main \
       -v osm-rendered-tiles:/var/lib/mod_tile \
       -d scaamanho/osm-tile-server run
 ```
 
 The import and tile serving processes use 4 threads by default, but this number can be changed by setting the `THREADS` environment variable.
 ```shell
-$ docker run -p 80:80 -e THREADS=24 -v osm-data:/var/lib/postgresql/10/main -d scaamanho/osm-tile-server run
+$docker run -p 80:80 -e THREADS=24 -v osm-data:/var/lib/postgresql/10/main -d scaamanho/osm-tile-server run
 ```
 
 
 ### Deploy with Docker Compose
 
 ```shell
-$ docker-compose up [-d]
+$docker-compose up [-d]
 ```
 
 ### Push image to Registry
 Login to docker hub:
 ```shell 
-$ docker login --username=yourhubusername --email=youremail@company.com
+$docker login --username=yourhubusername --email=youremail@company.com
 WARNING: login credentials saved in /home/username/.docker/config.json
 Login Succeeded
 ```
 Check the image id
 ```
-docker images
+$docker images
 REPOSITORY              TAG       IMAGE ID         CREATED           SIZE
 osm-tile-server         latest    023ab91c6291     3 minutes ago     3.750 GB
 ...
 ```
 add your tag image
 ```shell
-docker tag bb38976d03cf yourhubusername/osm-tile-server:latest
+$docker tag bb38976d03cf yourhubusername/osm-tile-server:latest
 ```
 Push your image to the repository you created
 ```shell
-docker push yourhubusername/osm-tile-server
+$docker push yourhubusername/osm-tile-server
 ```
 
 ### Load and saving images
@@ -82,11 +82,11 @@ Solutions to these problems can be to save the Docker container locally as a a t
 
 To save a Docker image after you have pulled, committed or built it you use the docker save command. For example, lets save a local copy of the `osm-tile-server` docker image we made:
 ```shell
-docker save osm-tile-server > osm-tile-server.tar
+$docker save osm-tile-server > osm-tile-server.tar
 ```
 If we want to load that Docker container from the archived tar file in the future, we can use the docker load command:
 ```shell
-docker load --input osm-tile-server.tar
+$docker load --input osm-tile-server.tar
 ```
 
 ### Import new data in osm-tile-server
@@ -104,17 +104,17 @@ Based on  [Sharing a local registry for minikube](https://blog.hasura.io/sharing
 #### Create a Docker Registry inside Kubernetes
 
 ```bash
-$ kubectl create -f kube-registry.yaml
+$kubectl create -f kube-registry.yaml
 ```
 #### Point your docker client at kubertes docker daemon
 
 ##### Minikube
 ```bash
-$ eval $(minikube docker-env)
+$eval $(minikube docker-env)
 ```
 this command exports the followin enviroment variables
 ```shell
-$ minikube docker-env
+$minikube docker-env
 export DOCKER_TLS_VERIFY="1"
 export DOCKER_HOST="tcp://192.168.39.36:2376"
 export DOCKER_CERT_PATH="/home/scaamano/.minikube/certs"
@@ -133,29 +133,29 @@ docker tag <IMAGE_ID> <REGISTRY_HOST>:<REGISTRY_PORT>/<APPNAME>:<APPVERSION>
 docker push <REGISTRY_HOST>:<REGISTRY_PORT>/<APPNAME>:<APPVERSION>  
 
 ```bash
-$ docker build -t osm-tile-server .
-$ docker login repo.company.com:3456
-$ docker tag 19fcc4aa71ba repo.company.com:3456/myapp:0.1
-$ docker push repo.company.com:3456/myapp:0.1
+$docker build -t osm-tile-server .
+$docker login repo.company.com:3456
+$docker tag 19fcc4aa71ba repo.company.com:3456/myapp:0.1
+$docker push repo.company.com:3456/myapp:0.1
 ```
 ### Install osm-tile-server on Kubernetes
 **NOTE**: Is needed set permisions in mount directories due they are not writen by root user
 ```shell
-$ minikube ssh
-$ sudo mkdir -p /data/osm-db
-$ sudo mkdir -p /data/osm-tile
-$ sudo chmod 755 /dat /osm*
+$minikube ssh
+$sudo mkdir -p /data/osm-db
+$sudo mkdir -p /data/osm-tile
+$sudo chmod 755 /dat /osm*
 ```
 
 
 ```bash
-kubectl create -f osm-k8s-full.yaml
+$kubectl create -f osm-k8s-full.yaml
 ```
 You can now test your server with: 
-
-curl http://$(minukube ip)/osm/tile/{z}/{x}/{y}.png
-curl http://$(minukube ip)/osm/
-
+```shell
+$curl http://$(minukube ip)/osm/tile/{z}/{x}/{y}.png
+$curl http://$(minukube ip)/osm/
+```
 ## License
 
 ```
