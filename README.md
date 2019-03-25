@@ -142,7 +142,7 @@ $ docker push repo.company.com:3456/myapp:0.1
 $ minikube ssh
 $ sudo mkdir -p /data/osm-db
 $ sudo mkdir -p /data/osm-tile
-$ sudo chmod 777 /dat /osm*
+$ sudo chmod 755 /dat /osm*
 ```
 
 
