@@ -4,8 +4,12 @@ FROM ubuntu:18.04
 # https://switch2osm.org/manually-building-a-tile-server-18-04-lts/
 
 # Install dependencies
-RUN apt-get update
-RUN apt-get install -y apt-utils libboost-all-dev git-core tar unzip wget bzip2 build-essential autoconf libtool libxml2-dev libgeos-dev libgeos++-dev libpq-dev libbz2-dev libproj-dev munin-node munin libprotobuf-c0-dev protobuf-c-compiler libfreetype6-dev libtiff5-dev libicu-dev libgdal-dev libcairo-dev libcairomm-1.0-dev apache2 apache2-dev libagg-dev liblua5.2-dev ttf-unifont lua5.1 liblua5.1-dev libgeotiff-epsg
+RUN apt-get update && apt-get install -y apt-utils libboost-all-dev git-core tar unzip wget \
+    bzip2 build-essential autoconf libtool libxml2-dev libgeos-dev libgeos++-dev libpq-dev \
+    libbz2-dev libproj-dev munin-node munin libprotobuf-c0-dev protobuf-c-compiler libfreetype6-dev \
+    libtiff5-dev libicu-dev libgdal-dev libcairo-dev libcairomm-1.0-dev apache2 apache2-dev libagg-dev \
+    liblua5.2-dev ttf-unifont lua5.1 liblua5.1-dev libgeotiff-epsg \
+    && apt-get clean
 
 # Set up environment and renderer user
 ENV TZ=UTC
@@ -19,7 +23,9 @@ WORKDIR /home/renderer/src
 RUN git clone https://github.com/openstreetmap/osm2pgsql.git
 WORKDIR /home/renderer/src/osm2pgsql
 USER root
-RUN apt-get install -y make cmake g++ libboost-dev libboost-system-dev libboost-filesystem-dev libexpat1-dev zlib1g-dev libbz2-dev libpq-dev libgeos-dev libgeos++-dev libproj-dev lua5.2 liblua5.2-dev
+RUN apt-get install -y make cmake g++ libboost-dev libboost-system-dev libboost-filesystem-dev \
+    libexpat1-dev zlib1g-dev libbz2-dev libpq-dev libgeos-dev libgeos++-dev libproj-dev lua5.2 liblua5.2-dev \
+    && apt-get clean
 USER renderer
 RUN mkdir build
 WORKDIR /home/renderer/src/osm2pgsql/build
@@ -31,7 +37,9 @@ USER renderer
 
 # Install and test Mapnik
 USER root
-RUN apt-get -y install autoconf apache2-dev libtool libxml2-dev libbz2-dev libgeos-dev libgeos++-dev libproj-dev gdal-bin libmapnik-dev mapnik-utils python-mapnik
+RUN apt-get -y install autoconf apache2-dev libtool libxml2-dev libbz2-dev libgeos-dev libgeos++-dev \
+    libproj-dev gdal-bin libmapnik-dev mapnik-utils python-mapnik \
+    && apt-get clean
 USER renderer
 RUN python -c 'import mapnik'
 
@@ -53,7 +61,7 @@ WORKDIR /home/renderer/src
 RUN git clone https://github.com/gravitystorm/openstreetmap-carto.git
 WORKDIR /home/renderer/src/openstreetmap-carto
 USER root
-RUN apt-get install -y npm nodejs
+RUN apt-get install -y npm nodejs  && apt-get clean
 RUN npm install -g carto
 USER renderer
 RUN carto -v
@@ -65,7 +73,7 @@ RUN scripts/get-shapefiles.py
 
 # Install fonts
 USER root
-RUN apt-get install -y fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted ttf-unifont
+RUN apt-get install -y fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted ttf-unifont  && apt-get clean
 USER renderer
 
 # Configure renderd
@@ -87,14 +95,16 @@ USER renderer
 
 # Install PostgreSQL
 USER root
-RUN apt-get install -y postgresql postgresql-contrib postgis postgresql-10-postgis-2.4
+RUN apt-get install -y postgresql postgresql-contrib postgis postgresql-10-postgis-2.4 && apt-get clean
 USER renderer
 
 # Start running
 USER root
-RUN apt-get install -y sudo
+#RUN apt-get install -y sudo
+RUN chmod 755 /var/www/html
 COPY run.sh /
 COPY map.osm /
 COPY html /var/www/html
+
 ENTRYPOINT ["/run.sh"]
 CMD []
